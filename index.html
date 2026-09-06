@@ -339,6 +339,7 @@ document.querySelectorAll('nav.tabs button').forEach(btn=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    requestAnimationFrame(()=>{ __allCharts.forEach(c=>{ try{ c.resize(); }catch(e){} }); });
   });
 });
 
@@ -349,8 +350,9 @@ Chart.defaults.font.family = "-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans
 const gridOpt = {grid:{color:'#1a2447'}};
 const accent = '#00b7c3', gold='#ffd100', green='#3ddc97', red='#ff5d6c', blue='#4f8cff';
 
+const __allCharts = [];
 function lineChart(ctx, labels, datasets, opts={}){
-  return new Chart(ctx, {
+  const c = new Chart(ctx, {
     type:'line',
     data:{labels, datasets: datasets.map(ds=>({
       fill: ds.fill ?? true, tension:.3, pointRadius: ds.pointRadius ?? 2, borderWidth:2.5,
@@ -363,10 +365,14 @@ function lineChart(ctx, labels, datasets, opts={}){
       interaction:{intersect:false,mode:'index'}
     }
   });
+  __allCharts.push(c);
+  return c;
 }
 function barChart(ctx, labels, data, color){
-  return new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color,borderRadius:6,maxBarThickness:60}]},
+  const c = new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color,borderRadius:6,maxBarThickness:60}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{...gridOpt},y:{...gridOpt,beginAtZero:true}}}});
+  __allCharts.push(c);
+  return c;
 }
 
 // Basket bar
