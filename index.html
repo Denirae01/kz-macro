@@ -67,6 +67,31 @@
   .chartrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   @media(max-width:820px){.chartrow{grid-template-columns:1fr;}}
 
+  .period-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:16px;}
+  .period-bar .plabel{font-size:12.5px;color:var(--muted);margin-right:2px;}
+  .period-bar .pbtns{display:flex;gap:6px;flex-wrap:wrap;}
+  .period-bar button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:12.5px;cursor:pointer;}
+  .period-bar button:hover{border-color:var(--accent);}
+  .period-bar button.active{background:var(--accent);border-color:transparent;color:#04121a;font-weight:700;}
+  .period-bar .prange{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:12.5px;color:var(--muted);}
+  .period-bar select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:12.5px;}
+  @media(max-width:640px){.period-bar .prange{margin-left:0;width:100%;}}
+
+  .events-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:22px;}
+  .event-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  .event-card .accentbar{background:linear-gradient(90deg,var(--gold),var(--accent));}
+  .event-card .etype{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px;}
+  .event-card .etitle{font-size:14.5px;font-weight:600;margin-bottom:10px;min-height:38px;}
+  .event-card .ecountdown{font-size:28px;font-weight:700;color:var(--gold);}
+  .event-card .ecountdown span{font-size:13px;color:var(--muted);font-weight:400;margin-left:4px;}
+  .event-card .edate{font-size:13px;color:var(--text);margin-top:8px;}
+  .event-card .etime{display:inline-block;margin-top:6px;font-size:11.5px;padding:3px 9px;border-radius:20px;}
+  .etime.exact{background:#3ddc9722;color:var(--green);border:1px solid #3ddc9755;}
+  .etime.approx{background:#8a94b822;color:var(--muted);border:1px solid #8a94b855;}
+  .events-list{display:flex;flex-direction:column;gap:6px;}
+  .events-list .cal-row{grid-template-columns:100px 1fr auto auto;}
+  .events-list .erow-time{font-size:12px;color:var(--muted);}
+
   .cal-toggle{display:flex;gap:6px;margin-bottom:14px;}
   .cal-toggle button{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;font-size:12.5px;cursor:pointer;}
   .cal-toggle button.active{background:var(--accent);color:#04121a;font-weight:700;border-color:transparent;}
@@ -110,6 +135,7 @@
     <button data-view="overview" class="active">Обзор</button>
     <button data-view="history">История</button>
     <button data-view="calendar">Календарь</button>
+    <button data-view="events">Ближайшие события</button>
     <button data-view="about">Об источниках</button>
   </nav>
 
@@ -124,13 +150,17 @@
     </div>
 
     <h2 class="sec">Ключевая ставка и курс тенге</h2>
+    <div class="period-bar" id="overviewPeriodBar">
+      <span class="plabel">Период:</span>
+      <div class="pbtns" id="overviewPeriodBtns"></div>
+    </div>
     <div class="chartrow">
       <div class="panel">
-        <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note">2024—2026</span></div>
+        <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note" id="rateMiniNote">2024—2026</span></div>
         <div class="chart-box" style="height:220px"><canvas id="rateMiniChart"></canvas></div>
       </div>
       <div class="panel">
-        <div class="phead"><h3>USD/KZT, официальный курс</h3><span class="note">последние публикации</span></div>
+        <div class="phead"><h3>USD/KZT, официальный курс</h3><span class="note" id="fxMiniNote">последние публикации</span></div>
         <div class="chart-box" style="height:220px"><canvas id="fxMiniChart"></canvas></div>
       </div>
     </div>
@@ -138,13 +168,23 @@
 
   <!-- HISTORY -->
   <section class="view" id="view-history">
-    <h2 class="sec">Инфляция (ИПЦ, г/г), 2000—2026</h2>
+    <div class="period-bar">
+      <span class="plabel">Период:</span>
+      <div class="pbtns" id="historyPeriodBtns"></div>
+      <div class="prange">
+        <span>от</span>
+        <select id="histFromYear"></select>
+        <span>до</span>
+        <select id="histToYear"></select>
+      </div>
+    </div>
+    <h2 class="sec">Инфляция (ИПЦ, г/г), <span id="cpiHistRange">2000—2026</span></h2>
     <div class="panel">
       <div class="phead"><h3>Годовая инфляция на конец периода, %</h3><span class="note">Бюро нацстатистики РК</span></div>
       <div class="chart-box" style="height:280px"><canvas id="cpiHistChart"></canvas></div>
     </div>
 
-    <h2 class="sec">Рост ВВП, 2000—2026</h2>
+    <h2 class="sec">Рост ВВП, <span id="gdpHistRange">2000—2026</span></h2>
     <div class="panel">
       <div class="phead"><h3>Реальный рост ВВП, % г/г</h3><span class="note">2026 — оценка за I кв.</span></div>
       <div class="chart-box" style="height:280px"><canvas id="gdpHistChart"></canvas></div>
@@ -152,18 +192,18 @@
 
     <div class="chartrow">
       <div class="panel">
-        <div class="phead"><h3>Безработица, %</h3><span class="note">2010—2026</span></div>
+        <div class="phead"><h3>Безработица, %</h3><span class="note" id="unemplHistRange">2010—2026</span></div>
         <div class="chart-box" style="height:260px"><canvas id="unemplHistChart"></canvas></div>
       </div>
       <div class="panel">
-        <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note">2015—2026, полная история</span></div>
+        <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note" id="rateHistRange">2015—2026, полная история</span></div>
         <div class="chart-box" style="height:260px"><canvas id="rateHistChart"></canvas></div>
       </div>
     </div>
 
     <h2 class="sec">Средняя номинальная зарплата, тенге</h2>
     <div class="panel">
-      <div class="phead"><h3>По кварталам</h3><span class="note">2022 — I кв. 2026</span></div>
+      <div class="phead"><h3>По кварталам</h3><span class="note" id="wageHistRange">2022 — I кв. 2026</span></div>
       <div class="chart-box" style="height:240px"><canvas id="wageHistChart"></canvas></div>
     </div>
 
@@ -178,6 +218,17 @@
     <h2 class="sec">Календарь публикаций и решений</h2>
     <div class="cal-toggle" id="calToggle"></div>
     <div id="calContainer"></div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="view" id="view-events">
+    <h2 class="sec">Ближайшие ключевые события</h2>
+    <div class="events-hero" id="eventsHero"></div>
+
+    <h2 class="sec">Все предстоящие события</h2>
+    <div class="panel">
+      <div class="events-list" id="eventsFullList"></div>
+    </div>
   </section>
 
   <!-- ABOUT -->
@@ -291,10 +342,60 @@ const STAT_CALENDAR = {
 // NBK rate-decision dates folded into calendar too:
 ["2026-09-07","2026-10-23","2026-12-04"];
 
+// ============ KEY UPCOMING EVENTS (exact date + time where officially confirmed) ============
+// Rate decision time is official: NBK press releases state decisions are announced
+// "в последний рабочий день недели в 12:00 ч." (12:00, Astana time, UTC+5).
+// stat.gov.kz's release calendar publishes exact DATES but does not publish an exact hour,
+// so those events are marked exact:false and shown as "в течение дня".
+const KEY_EVENTS = [
+  {type:'rate', title:'Заседание НБ РК по базовой ставке', date:'2026-09-07', time:'12:00', exact:true},
+  {type:'rate', title:'Заседание НБ РК по базовой ставке', date:'2026-10-23', time:'12:00', exact:true},
+  {type:'rate', title:'Заседание НБ РК по базовой ставке', date:'2026-12-04', time:'12:00', exact:true},
+
+  {type:'cpi', title:'Инфляция в РК (сентябрь 2026) — отчёт', date:'2026-10-01', time:null, exact:false},
+  {type:'cpi', title:'ИПЦ и производные показатели (сентябрь 2026) — таблица', date:'2026-10-08', time:null, exact:false},
+  {type:'cpi', title:'Инфляция в РК (октябрь 2026) — отчёт', date:'2026-11-02', time:null, exact:false},
+
+  {type:'gdp', title:'ВВП методом производства (Республика Казахстан)', date:'2026-09-30', time:null, exact:false},
+  {type:'gdp', title:'ВВП методом доходов', date:'2026-10-01', time:null, exact:false},
+  {type:'gdp', title:'ВВП методом конечного использования; ВРП', date:'2026-10-12', time:null, exact:false},
+
+  {type:'other', title:'Расходы и доходы населения РК', date:'2026-09-18', time:null, exact:false},
+  {type:'other', title:'Заработная плата наёмных работников', date:'2026-09-28', time:null, exact:false},
+  {type:'other', title:'Краткосрочный экономический индикатор', date:'2026-09-15', time:null, exact:false},
+  {type:'other', title:'Краткосрочный экономический индикатор', date:'2026-10-15', time:null, exact:false},
+];
+const EVENT_TYPE_LABEL = {rate:'НБ РК · базовая ставка', cpi:'Инфляция (ИПЦ)', gdp:'ВВП', other:'Публикация статистики'};
+const EVENT_TZ_OFFSET = '+05:00'; // Kazakhstan is UTC+5 year-round, no DST
+
 /* ================= HELPERS ================= */
 const fmt = (n,d=1)=> Number(n).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d});
 const monthsRu = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+const monthsRuFull = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const weekdaysRu = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
 function ruDate(iso){ const [y,m,d]=iso.split('-').map(Number); return `${d} ${monthsRu[m-1]} ${y}`; }
+function ruDateFull(iso){ const [y,m,d]=iso.split('-').map(Number); return `${d} ${monthsRuFull[m-1]} ${y}`; }
+function ruWeekday(iso){ const dt = new Date(iso+'T12:00:00Z'); return weekdaysRu[dt.getUTCDay()]; }
+function eventInstant(ev){
+  // Returns a Date representing the event's instant in time.
+  // Events with a known exact time use Kazakhstan's fixed UTC+5 offset;
+  // events with only a date are treated as ending at 23:59:59 local time (still "upcoming" all day).
+  const t = ev.time ? ev.time+':00' : '23:59:59';
+  return new Date(`${ev.date}T${t}${EVENT_TZ_OFFSET}`);
+}
+function formatCountdown(ms){
+  if(ms <= 0) return {n:0, unit:'сегодня'};
+  const days = Math.floor(ms/86400000);
+  if(days === 0) return {n:0, unit:'сегодня'};
+  if(days === 1) return {n:1, unit:'день'};
+  const lastDigit = days % 10, lastTwo = days % 100;
+  let unit = 'дней';
+  if(lastTwo < 11 || lastTwo > 14){
+    if(lastDigit === 1) unit = 'день';
+    else if(lastDigit>=2 && lastDigit<=4) unit = 'дня';
+  }
+  return {n:days, unit};
+}
 
 document.getElementById('footDate').textContent = ruDate(AS_OF);
 document.getElementById('updBadge').textContent = "данные на " + ruDate(AS_OF);
@@ -352,7 +453,8 @@ const gridOpt = {grid:{color:'#1a2447'}};
 const accent = '#00b7c3', gold='#ffd100', green='#3ddc97', red='#ff5d6c', blue='#4f8cff';
 
 const __allCharts = [];
-function lineChart(ctx, labels, datasets, opts={}){
+const chartRefs = {};
+function lineChart(ctx, labels, datasets, opts={}, key){
   const c = new Chart(ctx, {
     type:'line',
     data:{labels, datasets: datasets.map(ds=>({
@@ -367,57 +469,147 @@ function lineChart(ctx, labels, datasets, opts={}){
     }
   });
   __allCharts.push(c);
+  if(key) chartRefs[key] = c;
   return c;
 }
-function barChart(ctx, labels, data, color){
+function barChart(ctx, labels, data, color, key){
   const c = new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:color,borderRadius:6,maxBarThickness:60}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{...gridOpt},y:{...gridOpt,beginAtZero:true}}}});
   __allCharts.push(c);
+  if(key) chartRefs[key] = c;
   return c;
 }
 
-// Basket bar
+// Basket bar (single-snapshot, no time dimension — no period control needed)
 barChart(document.getElementById('basketChart'), Object.keys(CPI_BASKET), Object.values(CPI_BASKET),
   Object.keys(CPI_BASKET).map((k,i)=>[accent,gold,blue,green][i]));
 
-// Rate mini (2024-2026)
+/* ================= OVERVIEW MINI CHARTS (period-selectable) ================= */
+lineChart(document.getElementById('rateMiniChart'), [], [{label:'Ставка, %', data:[], color:gold, stepped:true}], {}, 'rateMini');
+lineChart(document.getElementById('fxMiniChart'), [], [{label:'USD/KZT', data:[], color:blue}], {}, 'fx');
+
+const OVERVIEW_PERIODS = [
+  {key:'3m', label:'3 мес', days:92},
+  {key:'6m', label:'6 мес', days:183},
+  {key:'1y', label:'1 год', days:366},
+  {key:'all', label:'Все', days:null},
+];
+function renderOverviewMini(days){
+  const asOfMs = new Date(AS_OF+'T00:00:00Z').getTime();
+  const cutoffMs = days ? asOfMs - days*86400000 : -Infinity;
+  const ratePts = BASE_RATE_HIST.filter(p=> new Date(p.d+'T00:00:00Z').getTime() >= cutoffMs);
+  chartRefs.rateMini.data.labels = ratePts.map(p=>ruDate(p.d));
+  chartRefs.rateMini.data.datasets[0].data = ratePts.map(p=>p.r);
+  chartRefs.rateMini.update();
+  const fxPts = USD_KZT_RECENT.filter(p=> new Date(p.d+'T00:00:00Z').getTime() >= cutoffMs);
+  chartRefs.fx.data.labels = fxPts.map(p=>ruDate(p.d));
+  chartRefs.fx.data.datasets[0].data = fxPts.map(p=>p.v);
+  chartRefs.fx.update();
+  const rangeNote = ratePts.length ? `${ruDate(ratePts[0].d)} — ${ruDate(ratePts[ratePts.length-1].d)}` : '—';
+  const fxRangeNote = fxPts.length ? `${ruDate(fxPts[0].d)} — ${ruDate(fxPts[fxPts.length-1].d)}` : '—';
+  document.getElementById('rateMiniNote').textContent = rangeNote;
+  document.getElementById('fxMiniNote').textContent = fxRangeNote;
+}
 (function(){
-  const pts = BASE_RATE_HIST.filter(p=>p.d>="2024-01-01");
-  lineChart(document.getElementById('rateMiniChart'), pts.map(p=>ruDate(p.d)), [{label:'Ставка, %', data:pts.map(p=>p.r), color:gold, stepped:true}]);
+  const wrap = document.getElementById('overviewPeriodBtns');
+  wrap.innerHTML = OVERVIEW_PERIODS.map(p=>`<button data-days="${p.days ?? ''}" class="${p.key==='6m'?'active':''}">${p.label}</button>`).join('');
+  wrap.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = btn.dataset.days;
+      renderOverviewMini(d === '' ? null : Number(d));
+    });
+  });
+  renderOverviewMini(183); // default: 6 months
 })();
 
-// FX mini
-lineChart(document.getElementById('fxMiniChart'), USD_KZT_RECENT.map(p=>ruDate(p.d)), [{label:'USD/KZT', data:USD_KZT_RECENT.map(p=>p.v), color:blue}]);
+/* ================= HISTORY CHARTS (period-selectable) ================= */
+lineChart(document.getElementById('cpiHistChart'), [], [{label:'ИПЦ г/г, %', data:[], color:accent, pointRadius:1}], {}, 'cpi');
+lineChart(document.getElementById('gdpHistChart'), [], [{label:'Рост ВВП, %', data:[], color:green, pointRadius:1}], {}, 'gdp');
+lineChart(document.getElementById('unemplHistChart'), [], [{label:'Безработица, %', data:[], color:red, pointRadius:1}], {y:{suggestedMin:3,suggestedMax:7}}, 'unempl');
+lineChart(document.getElementById('rateHistChart'), [], [{label:'Базовая ставка, %', data:[], color:gold, stepped:true, pointRadius:1}], {}, 'rateHist');
+barChart(document.getElementById('wageHistChart'), [], [], blue, 'wage');
 
-// CPI history full (2000-2025 annual + 2026 monthly)
+function cpiSeries(fromY, toY){
+  const years = Object.keys(CPI_ANNUAL).map(Number).filter(y=>y>=fromY && y<=toY);
+  const labels = years.map(String);
+  const data = years.map(y=>CPI_ANNUAL[y]);
+  if(toY>=2026){ Object.keys(CPI_2026_MONTHLY).forEach(m=>{ labels.push(m+' 2026'); data.push(CPI_2026_MONTHLY[m]); }); }
+  return {labels, data};
+}
+function gdpSeries(fromY, toY){
+  const years = Object.keys(GDP_ANNUAL).map(Number).filter(y=>y>=fromY && y<=toY);
+  const labels = years.map(String);
+  const data = years.map(y=>GDP_ANNUAL[y]);
+  if(toY>=2026){ labels.push('2026 (I кв.)'); data.push(GDP_2026_Q1); }
+  return {labels, data};
+}
+function unemplSeries(fromY, toY){
+  const years = Object.keys(UNEMPL_ANNUAL).map(Number).filter(y=>y>=fromY && y<=toY);
+  const labels = years.map(String);
+  const data = years.map(y=>UNEMPL_ANNUAL[y]);
+  if(toY>=2026){ labels.push('2026 (I кв.)'); data.push(UNEMPL_2026_Q1); }
+  return {labels, data};
+}
+function rateSeries(fromY, toY){
+  const pts = BASE_RATE_HIST.filter(p=>{ const y=Number(p.d.slice(0,4)); return y>=fromY && y<=toY; });
+  return {labels: pts.map(p=>ruDate(p.d)), data: pts.map(p=>p.r)};
+}
+function wageSeries(fromY, toY){
+  const keys = Object.keys(WAGE_QUARTERLY).filter(k=>{ const y=Number(k.slice(0,4)); return y>=fromY && y<=toY; });
+  return {labels: keys, data: keys.map(k=>WAGE_QUARTERLY[k])};
+}
+function renderHistoryCharts(fromY, toY){
+  const cpi = cpiSeries(fromY,toY); chartRefs.cpi.data.labels=cpi.labels; chartRefs.cpi.data.datasets[0].data=cpi.data; chartRefs.cpi.update();
+  const gdp = gdpSeries(fromY,toY); chartRefs.gdp.data.labels=gdp.labels; chartRefs.gdp.data.datasets[0].data=gdp.data; chartRefs.gdp.update();
+  const un = unemplSeries(fromY,toY); chartRefs.unempl.data.labels=un.labels; chartRefs.unempl.data.datasets[0].data=un.data; chartRefs.unempl.update();
+  const rt = rateSeries(fromY,toY); chartRefs.rateHist.data.labels=rt.labels; chartRefs.rateHist.data.datasets[0].data=rt.data; chartRefs.rateHist.update();
+  const wg = wageSeries(fromY,toY); chartRefs.wage.data.labels=wg.labels; chartRefs.wage.data.datasets[0].data=wg.data; chartRefs.wage.update();
+  const rangeLabel = fromY===toY ? String(fromY) : `${fromY}—${toY}`;
+  ['cpiHistRange','gdpHistRange','unemplHistRange','rateHistRange','wageHistRange'].forEach(id=>{
+    document.getElementById(id).textContent = rangeLabel;
+  });
+  document.getElementById('histFromYear').value = String(fromY);
+  document.getElementById('histToYear').value = String(toY);
+}
+const HISTORY_MIN_YEAR = 2000, HISTORY_MAX_YEAR = 2026;
 (function(){
-  const years = Object.keys(CPI_ANNUAL);
-  const labels = [...years, ...Object.keys(CPI_2026_MONTHLY).map(m=>m+' 2026')];
-  const data = [...Object.values(CPI_ANNUAL), ...Object.values(CPI_2026_MONTHLY)];
-  lineChart(document.getElementById('cpiHistChart'), labels, [{label:'ИПЦ г/г, %', data, color:accent, pointRadius:1}]);
+  const fromSel = document.getElementById('histFromYear');
+  const toSel = document.getElementById('histToYear');
+  for(let y=HISTORY_MIN_YEAR; y<=HISTORY_MAX_YEAR; y++){
+    fromSel.innerHTML += `<option value="${y}">${y}</option>`;
+    toSel.innerHTML += `<option value="${y}">${y}</option>`;
+  }
+  fromSel.value = String(HISTORY_MIN_YEAR);
+  toSel.value = String(HISTORY_MAX_YEAR);
+
+  const presets = [
+    {key:'5y', label:'5 лет', from:HISTORY_MAX_YEAR-5},
+    {key:'10y', label:'10 лет', from:HISTORY_MAX_YEAR-10},
+    {key:'2015', label:'С 2015', from:2015},
+    {key:'all', label:'Все', from:HISTORY_MIN_YEAR},
+  ];
+  const wrap = document.getElementById('historyPeriodBtns');
+  wrap.innerHTML = presets.map(p=>`<button data-from="${p.from}" class="${p.key==='all'?'active':''}">${p.label}</button>`).join('');
+  wrap.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderHistoryCharts(Number(btn.dataset.from), HISTORY_MAX_YEAR);
+    });
+  });
+  function onManualChange(){
+    wrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    let f = Number(fromSel.value), t = Number(toSel.value);
+    if(f>t){ [f,t]=[t,f]; }
+    renderHistoryCharts(f,t);
+  }
+  fromSel.addEventListener('change', onManualChange);
+  toSel.addEventListener('change', onManualChange);
+
+  renderHistoryCharts(HISTORY_MIN_YEAR, HISTORY_MAX_YEAR); // default: full range
 })();
-
-// GDP history
-(function(){
-  const years = Object.keys(GDP_ANNUAL);
-  const labels=[...years,'2026 (I кв.)'];
-  const data=[...Object.values(GDP_ANNUAL), GDP_2026_Q1];
-  lineChart(document.getElementById('gdpHistChart'), labels, [{label:'Рост ВВП, %', data, color:green, pointRadius:1}]);
-})();
-
-// Unemployment history
-(function(){
-  const years=Object.keys(UNEMPL_ANNUAL);
-  const labels=[...years,'2026 (I кв.)'];
-  const data=[...Object.values(UNEMPL_ANNUAL), UNEMPL_2026_Q1];
-  lineChart(document.getElementById('unemplHistChart'), labels, [{label:'Безработица, %', data, color:red, pointRadius:1}], {y:{suggestedMin:3,suggestedMax:7}});
-})();
-
-// Base rate full history
-lineChart(document.getElementById('rateHistChart'), BASE_RATE_HIST.map(p=>ruDate(p.d)), [{label:'Базовая ставка, %', data:BASE_RATE_HIST.map(p=>p.r), color:gold, stepped:true, pointRadius:1}]);
-
-// Wage history
-barChart(document.getElementById('wageHistChart'), Object.keys(WAGE_QUARTERLY), Object.values(WAGE_QUARTERLY), blue);
 
 /* ================= DATA TABLE ================= */
 (function(){
@@ -459,6 +651,50 @@ function renderCalMonth(m){
 }
 renderCalToggle();
 renderCalMonth(calMonths[0]);
+
+/* ================= UPCOMING EVENTS ================= */
+function eventTimeBadge(ev){
+  if(ev.exact) return `<span class="etime exact">${ev.time} (Астана, UTC+5)</span>`;
+  return `<span class="etime approx">точное время не публикуется — в течение дня</span>`;
+}
+function renderEvents(){
+  const now = new Date();
+  const upcoming = KEY_EVENTS
+    .map(ev=>({...ev, when:eventInstant(ev)}))
+    .filter(ev=>ev.when.getTime() >= now.getTime())
+    .sort((a,b)=>a.when-b.when);
+
+  // Hero cards: nearest event per category
+  const heroTypes = ['rate','cpi','gdp'];
+  const heroHtml = heroTypes.map(type=>{
+    const ev = upcoming.find(e=>e.type===type);
+    if(!ev){
+      return `<div class="event-card"><div class="accentbar"></div><div class="etype">${EVENT_TYPE_LABEL[type]}</div><div class="etitle">Дата пока не объявлена</div></div>`;
+    }
+    const cd = formatCountdown(ev.when - now);
+    return `<div class="event-card"><div class="accentbar"></div>
+      <div class="etype">${EVENT_TYPE_LABEL[ev.type]}</div>
+      <div class="etitle">${ev.title}</div>
+      <div class="ecountdown">${cd.n===0 ? 'сегодня' : cd.n}${cd.n!==0 ? `<span>${cd.unit}</span>`:''}</div>
+      <div class="edate">${ruWeekday(ev.date)}, ${ruDateFull(ev.date)}</div>
+      ${eventTimeBadge(ev)}
+    </div>`;
+  }).join('');
+  document.getElementById('eventsHero').innerHTML = heroHtml;
+
+  // Full chronological list
+  document.getElementById('eventsFullList').innerHTML = upcoming.map(ev=>{
+    const cd = formatCountdown(ev.when - now);
+    const cdLabel = cd.n===0 ? 'сегодня' : `через ${cd.n} ${cd.unit}`;
+    return `<div class="cal-row">
+      <div class="cal-date">${ruDate(ev.date)}</div>
+      <div><div class="cal-title">${ev.title}</div><div class="erow-time">${ev.exact ? ev.time+' (Астана, UTC+5)' : 'время не публикуется'} · ${ruWeekday(ev.date)}</div></div>
+      <div>${tagFor(ev.type==='rate'?'rate':(ev.type==='cpi'?'cpi':'stat'))}</div>
+      <div class="erow-time">${cdLabel}</div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted)">Все известные события уже прошли — обновите список позже.</p>';
+}
+renderEvents();
 </script>
 </body>
 </html>
