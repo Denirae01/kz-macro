@@ -61,7 +61,8 @@
   .panel .phead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
   .panel .phead h3{margin:0;font-size:15px;}
   .panel .phead .note{font-size:12px;color:var(--muted);}
-  canvas{max-width:100%;}
+  .chart-box{position:relative;width:100%;}
+  .chart-box canvas{width:100% !important;height:100% !important;}
 
   .chartrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   @media(max-width:820px){.chartrow{grid-template-columns:1fr;}}
@@ -119,18 +120,18 @@
     <h2 class="sec">Инфляция — состав корзины (последний доступный месяц)</h2>
     <div class="panel">
       <div class="phead"><h3>Годовая инфляция по компонентам ИПЦ, %</h3><span class="note">Источник: taldau.stat.gov.kz</span></div>
-      <canvas id="basketChart" height="90"></canvas>
+      <div class="chart-box" style="height:180px"><canvas id="basketChart"></canvas></div>
     </div>
 
     <h2 class="sec">Ключевая ставка и курс тенге</h2>
     <div class="chartrow">
       <div class="panel">
         <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note">2024—2026</span></div>
-        <canvas id="rateMiniChart" height="140"></canvas>
+        <div class="chart-box" style="height:220px"><canvas id="rateMiniChart"></canvas></div>
       </div>
       <div class="panel">
         <div class="phead"><h3>USD/KZT, официальный курс</h3><span class="note">последние публикации</span></div>
-        <canvas id="fxMiniChart" height="140"></canvas>
+        <div class="chart-box" style="height:220px"><canvas id="fxMiniChart"></canvas></div>
       </div>
     </div>
   </section>
@@ -140,30 +141,30 @@
     <h2 class="sec">Инфляция (ИПЦ, г/г), 2000—2026</h2>
     <div class="panel">
       <div class="phead"><h3>Годовая инфляция на конец периода, %</h3><span class="note">Бюро нацстатистики РК</span></div>
-      <canvas id="cpiHistChart" height="110"></canvas>
+      <div class="chart-box" style="height:280px"><canvas id="cpiHistChart"></canvas></div>
     </div>
 
     <h2 class="sec">Рост ВВП, 2000—2026</h2>
     <div class="panel">
       <div class="phead"><h3>Реальный рост ВВП, % г/г</h3><span class="note">2026 — оценка за I кв.</span></div>
-      <canvas id="gdpHistChart" height="110"></canvas>
+      <div class="chart-box" style="height:280px"><canvas id="gdpHistChart"></canvas></div>
     </div>
 
     <div class="chartrow">
       <div class="panel">
         <div class="phead"><h3>Безработица, %</h3><span class="note">2010—2026</span></div>
-        <canvas id="unemplHistChart" height="130"></canvas>
+        <div class="chart-box" style="height:260px"><canvas id="unemplHistChart"></canvas></div>
       </div>
       <div class="panel">
         <div class="phead"><h3>Базовая ставка НБ РК, %</h3><span class="note">2015—2026, полная история</span></div>
-        <canvas id="rateHistChart" height="130"></canvas>
+        <div class="chart-box" style="height:260px"><canvas id="rateHistChart"></canvas></div>
       </div>
     </div>
 
     <h2 class="sec">Средняя номинальная зарплата, тенге</h2>
     <div class="panel">
       <div class="phead"><h3>По кварталам</h3><span class="note">2022 — I кв. 2026</span></div>
-      <canvas id="wageHistChart" height="100"></canvas>
+      <div class="chart-box" style="height:240px"><canvas id="wageHistChart"></canvas></div>
     </div>
 
     <h2 class="sec">Таблица данных</h2>
